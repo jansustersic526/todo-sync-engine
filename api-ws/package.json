@@ -1,5 +1,5 @@
 {
-  "name": "todo-api",
+  "name": "todo-api-ws",
   "private": true,
   "dependencies": {
     "cors": "^2.8.5",
@@ -10,6 +10,8 @@
     "@types/express": "^5.0.0",
     "@types/cors": "^2.8.17",
     "@types/pg": "^8.11.0",
-    "@types/node": "^22.0.0"
+    "@types/node": "^22.0.0",
+    "ws": "^8.18.0",
+    "@types/ws": "^8.5.0"
   }
 }

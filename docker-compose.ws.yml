@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "54321:5432"
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  api-ws:
+    build: ./api-ws
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/postgres
+    ports:
+      - "3002:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend-ws:
+    build: ./frontend-ws
+    ports:
+      - "5175:5173"
+    depends_on:
+      - api-ws

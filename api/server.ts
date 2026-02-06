@@ -1,6 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const { Pool } = require('pg');
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import pg from 'pg';
+
+const { Pool } = pg;
 
 const app = express();
 app.use(cors());
@@ -10,8 +12,8 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/postgres',
 });
 
-app.post('/todos', async (req, res) => {
-  const { id, title } = req.body;
+app.post('/todos', async (req: Request, res: Response) => {
+  const { id, title } = req.body as { id: string; title: string };
   try {
     await pool.query('INSERT INTO todos (id, title) VALUES ($1, $2)', [id, title]);
     res.status(201).json({ id, title });
@@ -21,7 +23,7 @@ app.post('/todos', async (req, res) => {
   }
 });
 
-app.delete('/todos/:id', async (req, res) => {
+app.delete('/todos/:id', async (req: Request, res: Response) => {
   try {
     await pool.query('DELETE FROM todos WHERE id = $1', [req.params.id]);
     res.status(204).end();

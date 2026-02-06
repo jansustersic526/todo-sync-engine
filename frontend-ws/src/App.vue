@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useShape } from './useShape'
+import { useWebSocket } from './useWebSocket'
 
 interface Todo {
   id: string
@@ -8,13 +8,9 @@ interface Todo {
   created_at: string
 }
 
-const API_URL = 'http://localhost:3001'
-const ELECTRIC_URL = 'http://localhost:3000'
+const API_URL = 'http://localhost:3002'
 
-const { rows: todos } = useShape<Todo>({
-  url: `${ELECTRIC_URL}/v1/shape`,
-  params: { table: 'todos' },
-})
+const { rows: todos } = useWebSocket<Todo>('ws://localhost:3002/ws')
 
 const newTitle = ref('')
 
@@ -36,7 +32,7 @@ async function deleteTodo(id: string) {
 
 <template>
   <div class="container">
-    <h1>Electric SQL TODO Demo</h1>
+    <h1>WebSocket TODO Demo</h1>
     <form @submit.prevent="addTodo" class="add-form">
       <input v-model="newTitle" placeholder="What needs to be done?" autofocus />
       <button type="submit">Add</button>

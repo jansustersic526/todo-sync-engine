@@ -1,12 +1,11 @@
 {
-  "name": "todo-frontend",
+  "name": "todo-frontend-ws",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite"
   },
   "dependencies": {
-    "@electric-sql/client": "^1.0.0",
     "vue": "^3.5.0"
   },
   "devDependencies": {
