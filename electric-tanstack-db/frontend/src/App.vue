@@ -1,36 +1,31 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useShape } from './useShape'
+import { useLiveQuery } from '@tanstack/vue-db'
+import { todoCollection } from './todoCollection'
 
-interface Todo {
-  id: string
-  title: string
-  created_at: string
-}
-
-const API_URL = 'http://localhost:3001'
-const ELECTRIC_URL = 'http://localhost:3000'
-
-const { rows: todos } = useShape<Todo>({
-  url: `${ELECTRIC_URL}/v1/shape`,
-  params: { table: 'todos' },
-})
+const { data: todos } = useLiveQuery((q) =>
+  q.from({ todo: todoCollection }).select(({ todo }) => ({
+    id: todo.id,
+    title: todo.title,
+    created_at: todo.created_at,
+  }))
+)
 
 const newTitle = ref('')
 
-async function addTodo() {
+function addTodo() {
   const title = newTitle.value.trim()
   if (!title) return
   newTitle.value = ''
-  await fetch(`${API_URL}/todos`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: crypto.randomUUID(), title }),
+  todoCollection.insert({
+    id: crypto.randomUUID(),
+    title,
+    created_at: new Date().toISOString(),
   })
 }
 
-async function deleteTodo(id: string) {
-  await fetch(`${API_URL}/todos/${id}`, { method: 'DELETE' })
+function deleteTodo(id: string) {
+  todoCollection.delete(id)
 }
 </script>
 

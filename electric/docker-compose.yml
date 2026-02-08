@@ -7,7 +7,7 @@ services:
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "54320:5432"
+      - "54322:5432"
     healthcheck:
       test: pg_isready -U postgres
       interval: 2s
@@ -20,7 +20,7 @@ services:
       DATABASE_URL: postgresql://postgres:password@postgres:5432/postgres
       ELECTRIC_INSECURE: "true"
     ports:
-      - "3000:3000"
+      - "3003:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -29,16 +29,19 @@ services:
     build: ./api
     environment:
       DATABASE_URL: postgresql://postgres:password@postgres:5432/postgres
+      ELECTRIC_URL: http://electric:3000
     ports:
-      - "3001:3001"
+      - "3004:3001"
     depends_on:
       postgres:
         condition: service_healthy
+      electric:
+        condition: service_started
 
   frontend:
     build: ./frontend
     ports:
-      - "5174:5173"
+      - "5176:5173"
     depends_on:
       - electric
       - api

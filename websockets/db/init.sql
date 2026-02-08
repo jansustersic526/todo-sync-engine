@@ -1,0 +1,5 @@
+CREATE TABLE todos (
+  id UUID PRIMARY KEY,
+  title TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
