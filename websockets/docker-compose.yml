@@ -19,6 +19,9 @@ services:
       DATABASE_URL: postgresql://postgres:password@postgres:5432/postgres
     ports:
       - "3002:3001"
+    volumes:
+      - ./api-ws:/app
+      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -27,5 +30,8 @@ services:
     build: ./frontend-ws
     ports:
       - "5175:5173"
+    volumes:
+      - ./frontend-ws:/app
+      - /app/node_modules
     depends_on:
       - api-ws

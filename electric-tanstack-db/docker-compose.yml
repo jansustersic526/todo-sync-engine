@@ -32,6 +32,9 @@ services:
       ELECTRIC_URL: http://electric:3000
     ports:
       - "3001:3001"
+    volumes:
+      - ./api:/app
+      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,6 +45,9 @@ services:
     build: ./frontend
     ports:
       - "5174:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - electric
       - api

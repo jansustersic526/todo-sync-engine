@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useLiveQuery } from '@tanstack/vue-db'
+import { ilike } from '@tanstack/db'
 import { todoCollection } from './todoCollection'
 
-const { data: todos } = useLiveQuery((q) =>
-  q.from({ todo: todoCollection }).select(({ todo }) => ({
+const newTitle = ref('')
+
+const { data: todos } = useLiveQuery((q) => {
+  let query = q.from({ todo: todoCollection })
+  const s = newTitle.value.trim()
+  if (s) {
+    query = query.where(({ todo }) => ilike(todo.title, `%${s}%`))
+  }
+  return query.select(({ todo }) => ({
     id: todo.id,
     title: todo.title,
     created_at: todo.created_at,
   }))
-)
-
-const newTitle = ref('')
+})
 
 function addTodo() {
   const title = newTitle.value.trim()
@@ -33,7 +39,7 @@ function deleteTodo(id: string) {
   <div class="container">
     <h1>Electric SQL TODO Demo</h1>
     <form @submit.prevent="addTodo" class="add-form">
-      <input v-model="newTitle" placeholder="What needs to be done?" autofocus />
+      <input v-model="newTitle" placeholder="Search or add a todo..." autofocus />
       <button type="submit">Add</button>
     </form>
     <ul class="todo-list">
@@ -41,7 +47,8 @@ function deleteTodo(id: string) {
         <span>{{ todo.title }}</span>
         <button @click="deleteTodo(todo.id)" class="delete-btn">Delete</button>
       </li>
-      <li v-if="todos.length === 0" class="empty">No todos yet. Add one above!</li>
+      <li v-if="todos.length === 0 && !newTitle.trim()" class="empty">No todos yet. Add one above!</li>
+      <li v-if="todos.length === 0 && newTitle.trim()" class="empty">No matching todos.</li>
     </ul>
   </div>
 </template>

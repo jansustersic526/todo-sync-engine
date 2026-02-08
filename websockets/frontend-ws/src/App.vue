@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useWebSocket } from './useWebSocket'
 
 interface Todo {
@@ -12,17 +12,29 @@ const API_URL = 'http://localhost:3002'
 
 const { rows: todos } = useWebSocket<Todo>('ws://localhost:3002/ws')
 
+const filteredTodos = computed(() => {
+  const q = newTitle.value.trim().toLowerCase()
+  if (!q) return todos.value
+  return todos.value.filter((t) => t.title.toLowerCase().includes(q))
+})
+
 const newTitle = ref('')
+const adding = ref(false)
 
 async function addTodo() {
   const title = newTitle.value.trim()
   if (!title) return
   newTitle.value = ''
-  await fetch(`${API_URL}/todos`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: crypto.randomUUID(), title }),
-  })
+  adding.value = true
+  try {
+    await fetch(`${API_URL}/todos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: crypto.randomUUID(), title }),
+    })
+  } finally {
+    adding.value = false
+  }
 }
 
 async function deleteTodo(id: string) {
@@ -34,15 +46,19 @@ async function deleteTodo(id: string) {
   <div class="container">
     <h1>WebSocket TODO Demo</h1>
     <form @submit.prevent="addTodo" class="add-form">
-      <input v-model="newTitle" placeholder="What needs to be done?" autofocus />
-      <button type="submit">Add</button>
+      <input v-model="newTitle" placeholder="Search or add a todo..." autofocus />
+      <button type="submit" :disabled="adding">
+        <span v-if="adding" class="spinner"></span>
+        {{ adding ? 'Adding...' : 'Add' }}
+      </button>
     </form>
     <ul class="todo-list">
-      <li v-for="todo in todos" :key="todo.id">
+      <li v-for="todo in filteredTodos" :key="todo.id">
         <span>{{ todo.title }}</span>
         <button @click="deleteTodo(todo.id)" class="delete-btn">Delete</button>
       </li>
-      <li v-if="todos.length === 0" class="empty">No todos yet. Add one above!</li>
+      <li v-if="filteredTodos.length === 0 && newTitle.trim()" class="empty">No matching todos.</li>
+      <li v-if="filteredTodos.length === 0 && !newTitle.trim()" class="empty">No todos yet. Add one above!</li>
     </ul>
   </div>
 </template>
@@ -96,8 +112,29 @@ h1 {
   cursor: pointer;
 }
 
-.add-form button:hover {
+.add-form button:hover:not(:disabled) {
   background: #4338ca;
+}
+
+.add-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .todo-list {
