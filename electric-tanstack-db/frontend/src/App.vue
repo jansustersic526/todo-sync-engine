@@ -4,11 +4,11 @@ import { useLiveQuery } from '@tanstack/vue-db'
 import { ilike } from '@tanstack/db'
 import { todoCollection } from './todoCollection'
 
-const newTitle = ref('')
+const searchOrCreateInput = ref('')
 
 const { data: todos } = useLiveQuery((q) => {
   let query = q.from({ todo: todoCollection })
-  const s = newTitle.value.trim()
+  const s = searchOrCreateInput.value.trim()
   if (s) {
     query = query.where(({ todo }) => ilike(todo.title, `%${s}%`))
   }
@@ -20,9 +20,9 @@ const { data: todos } = useLiveQuery((q) => {
 })
 
 function addTodo() {
-  const title = newTitle.value.trim()
+  const title = searchOrCreateInput.value.trim()
   if (!title) return
-  newTitle.value = ''
+  searchOrCreateInput.value = ''
   todoCollection.insert({
     id: crypto.randomUUID(),
     title,
@@ -37,9 +37,9 @@ function deleteTodo(id: string) {
 
 <template>
   <div class="container">
-    <h1>Electric SQL TODO Demo</h1>
+    <h1>Electric SQL Tanstadk DB TODO</h1>
     <form @submit.prevent="addTodo" class="add-form">
-      <input v-model="newTitle" placeholder="Search or add a todo..." autofocus />
+      <input v-model="searchOrCreateInput" placeholder="Search or add a todo..." autofocus />
       <button type="submit">Add</button>
     </form>
     <ul class="todo-list">
@@ -47,8 +47,8 @@ function deleteTodo(id: string) {
         <span>{{ todo.title }}</span>
         <button @click="deleteTodo(todo.id)" class="delete-btn">Delete</button>
       </li>
-      <li v-if="todos.length === 0 && !newTitle.trim()" class="empty">No todos yet. Add one above!</li>
-      <li v-if="todos.length === 0 && newTitle.trim()" class="empty">No matching todos.</li>
+      <li v-if="todos.length === 0 && !searchOrCreateInput.trim()" class="empty">No todos yet. Add one above!</li>
+      <li v-if="todos.length === 0 && searchOrCreateInput.trim()" class="empty">No matching todos.</li>
     </ul>
   </div>
 </template>

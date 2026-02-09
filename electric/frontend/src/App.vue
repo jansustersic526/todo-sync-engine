@@ -47,7 +47,7 @@ function deleteTodo(id: string) {
 
 <template>
   <div class="container">
-    <h1>Electric SQL TODO Demo</h1>
+    <h1>Electric SQL TODO</h1>
     <form @submit.prevent="addTodo" class="add-form">
       <input v-model="newTitle" placeholder="Search or add a todo..." autofocus />
       <button type="submit" :disabled="adding">
